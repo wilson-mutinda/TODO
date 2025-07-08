@@ -153,9 +153,9 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue';
 import draggable from 'vuedraggable';
 import api from '@/services/api';
+import { setupTokenTimers } from '@/services/auth';
 
 export default {
     components: {
@@ -163,7 +163,8 @@ export default {
     },
 
     mounted() {
-        this.fetchTasks()
+        setupTokenTimers();
+        this.fetchTasks();
     },
 
     data() {
@@ -204,42 +205,43 @@ export default {
             }
         },
     },
+     
     methods: {
         async onDragEnd(evt) {
-  try {
-    const taskId = parseInt(evt.item?.dataset?.id);
-    if (!taskId) return;
+            try {
+                const taskId = parseInt(evt.item?.dataset?.id);
+                if (!taskId) return;
 
-    const movedTask = this.tasks.find(task => task.id === taskId);
-    if (!movedTask) return;
+                const movedTask = this.tasks.find(task => task.id === taskId);
+                if (!movedTask) return;
 
-    const targetColumn = evt.to.closest('.bg-white');
-    let newStatus = 'todo';
-    const headerText = targetColumn?.querySelector('p')?.textContent?.toUpperCase() || '';
+                const targetColumn = evt.to.closest('.bg-white');
+                let newStatus = 'todo';
+                const headerText = targetColumn?.querySelector('p')?.textContent?.toUpperCase() || '';
 
-    if (headerText.includes('DOING')) newStatus = 'doing';
-    else if (headerText.includes('DONE')) newStatus = 'done';
+                if (headerText.includes('DOING')) newStatus = 'doing';
+                else if (headerText.includes('DONE')) newStatus = 'done';
 
-    // Prevent unnecessary update
-    if (movedTask.status === newStatus) return;
+                // Prevent unnecessary update
+                if (movedTask.status === newStatus) return;
 
-    // ✅ Update local task status
-    movedTask.status = newStatus;
+                // ✅ Update local task status
+                movedTask.status = newStatus;
 
-    // ✅ Send update to backend
-    await api.patch(`update_task/${taskId}`, {
-      task: { status: newStatus }
-    });
+                // ✅ Send update to backend
+                await api.patch(`update_task/${taskId}`, {
+                task: { status: newStatus }
+                });
 
-    // ✅ Refresh tasks from backend
-    await this.fetchTasks();
+                // ✅ Refresh tasks from backend
+                await this.fetchTasks();
 
-  } catch (error) {
-    console.error('Drag error:', error);
-    alert('Failed to update task');
-    await this.fetchTasks(); // fallback recovery
-  }
-},
+            } catch (error) {
+                console.error('Drag error:', error);
+                alert('Failed to update task');
+                await this.fetchTasks(); // fallback recovery
+            }
+        },
 
         // viewSingleTask
         async singleTask(id) {

@@ -70,8 +70,9 @@ export default {
                 }
                 const response = await api.post('user_login/', payload)
                 // acees and refresh token
-                localStorage.setItem('access_token', response.data.access_token)
-                localStorage.setItem('refresh_token', response.data.refresh_token)
+                localStorage.setItem('access_token', response.data.access_token);
+                localStorage.setItem('refresh_token', response.data.refresh_token);
+                localStorage.setItem('token_created_at', new Date().getTime().toString());
                 
                 alert('Login Successful')
                 this.clearAll()

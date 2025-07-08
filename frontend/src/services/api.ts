@@ -1,4 +1,5 @@
 import axios from "axios";
+import { logoutUser } from "./auth";
 
 const api = axios.create({
     baseURL: "http://127.0.0.1:3000/api/v1/",
@@ -22,11 +23,11 @@ api.interceptors.response.use(
 
     async error => {
         // get the errorResponse
-        const errorResponse = error.config;
+        const originalRequest = error.config;
 
         // check if its a 401 error, and if its not retried to retry
-        if (error.response.status === 401 && !errorResponse._retry) {
-            errorResponse._retry = true
+        if (error.response?.status === 401 && !originalRequest._retry) {
+            originalRequest._retry = true
 
             // get the refreshToken
             const refreshToken = localStorage.getItem('refresh_token')
@@ -39,19 +40,18 @@ api.interceptors.response.use(
                     }
                 });
     
-                const newAccessToken = refreshResponse.data.new_access_token
+                const newAccessToken = refreshResponse.data.new_access_token;
     
                 // set the accessToken to newAccessToken
                 localStorage.setItem('access_token', newAccessToken)
+                localStorage.setItem('token_created_at', new Date().getTime().toString());
     
                 // reset errorResponse to use the newAccessToken
-                errorResponse.headers.Authorization = `Bearer ${newAccessToken}`
+                originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
     
-                return api(errorResponse)
+                return api(originalRequest)
             } catch (refreshError) {
-                localStorage.removeItem('access_token');
-                localStorage.removeItem('refresh_token');
-                window.location.href = '/login';
+                logoutUser();
                 return Promise.reject(refreshError);
             }
         }
