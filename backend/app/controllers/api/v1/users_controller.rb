@@ -139,6 +139,7 @@ class Api::V1::UsersController < ApplicationController
         render json: { error: "Token Not Provided!"}, status: :unprocessable_entity
       end
     rescue => e
+      Rails.logger.error "Token refresh failed: #{e.full_message}"
       render json: { error: "Something went wrong!", message: e.message }, status: :internal_server_error
     end
   end

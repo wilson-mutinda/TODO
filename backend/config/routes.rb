@@ -8,7 +8,7 @@ Rails.application.routes.draw do
       post 'user_login/', to: 'users#user_login'
 
       # refresh_token
-      post 'refresh_token/', to: 'users#refresh_token'
+      get 'refresh_token/', to: 'users#refresh_token'
 
       # tasks
       post 'create_task', to: 'tasks#create_task'
