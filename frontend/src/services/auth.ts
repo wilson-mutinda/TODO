@@ -20,9 +20,11 @@ export function setupTokenTimers() {
         const refreshToken = localStorage.getItem('refresh_token');
 
         try {
-            const response = await api.post('refresh_token', {}, {
+            const response = await api.get('refresh_token.json', {
                 headers: {
-                    Authorization: `Bearer ${refreshToken}`
+                    'Authorization': `Bearer ${refreshToken}`,
+                    "Content-Type": 'application/json',
+                    "Accept": 'application/json',
                 }
             });
     
@@ -46,5 +48,5 @@ export function logoutUser() {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('token_created_at');
-    window.location.href = '/login'
+    window.location.href = '/login';
 }

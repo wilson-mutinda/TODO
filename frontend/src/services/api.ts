@@ -14,7 +14,7 @@ api.interceptors.request.use(config => {
         // embed the access_token to every request made
         config.headers.Authorization = `Bearer ${token}`
     }
-    return config
+    return config;
 })
 
 // RESPONSE INTERCEPTOR
@@ -34,9 +34,11 @@ api.interceptors.response.use(
 
             try {
                 // get a newAccessToken with the refreshToken
-                const refreshResponse = await api.post('refresh_token', {}, {
+                const refreshResponse = await api.get('refresh_token.json', {
                     headers: {
-                        Authorization: `Bearer ${refreshToken}`
+                        'Authorization': `Bearer ${refreshToken}`,
+                        "Content-Type": 'application/json',
+                        "Accept": "application/json",
                     }
                 });
     
