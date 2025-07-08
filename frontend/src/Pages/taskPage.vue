@@ -143,8 +143,24 @@
                 <button @click="cancelButton" type="button" class="bg-yellow-500 px-4 py-2 rounded-md">
                     Cancel
                 </button>
-                <button @click="submitTask" type="submit" class="bg-blue-500 px-4 py-2 rounded-md">
-                    {{ isEdit ? "Update" : "Create" }}
+                <button
+                 @click="submitTask" 
+                 type="submit" 
+                 class="bg-blue-500 px-4 py-2 rounded-md"
+                 :disabled="loading"
+                 >
+
+                 <!-- when not loading -->
+                  <span v-if="!loading">{{ isEdit ? "Update" : "Create" }}</span>
+
+                  <!-- while loading -->
+                   <span v-else class="flex items-center gap-2">
+                    <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    Saving...
+                   </span>
                 </button>
              </div>
          </div>
@@ -175,9 +191,13 @@ export default {
             openModal: false,
             isEdit: false,
             taskId: null,
+            
+            loading: false
         }
     },
+
     computed: {
+
         todoTasks: {
             get() {
                 return this.tasks.filter(task => task.status === 'todo');
@@ -280,6 +300,9 @@ export default {
 
         // create_task
         async submitTask () {
+
+            this.loading = true;
+            
             try {
                 const payload = {
                     task: {
@@ -290,10 +313,10 @@ export default {
                 if (this.isEdit && this.taskId) {
                     // update Task
                     await api.patch(`update_task/${this.taskId}`, payload)
-                    alert("Task Updated")
+                    // alert("Task Updated")
                 } else {
                     await api.post('create_task', payload)
-                    alert("Task Created")
+                    // alert("Task Created")
                 }
 
                 this.task = '';
@@ -301,6 +324,7 @@ export default {
                 this.isEdit = false;
                 this.taskId = null;
                 this.errors = {};
+                
                 this.fetchTasks();
             } catch (error) {
                 if (error.response && error.response.data && error.response.data.errors) {
@@ -308,6 +332,8 @@ export default {
                 } else {
                     this.errors = { general: "Something went wrong"}
                 }
+            } finally {
+                this.loading = false;
             }
         },
 

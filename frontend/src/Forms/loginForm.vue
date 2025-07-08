@@ -21,7 +21,7 @@
                 </div>
 
                 <!-- submit button -->
-                 <button type="submit" class="w-full bg-blue-400 mt-4 rounded-md p-2 text-white font-semibold hover:bg-blue-200" :disabled="loading">
+                <button type="submit" class="w-full bg-blue-400 mt-4 rounded-md p-2 text-white font-semibold hover:bg-blue-200" :disabled="loading">
                     <span v-if="!loading">Login</span>
                     <span v-else class="flex items-center justify-center gap-2">
                         <!-- Spinner -->
