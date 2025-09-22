@@ -10,9 +10,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_22_052944) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_22_090543) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "managers", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "first_name"
+    t.string "last_name"
+    t.string "username"
+    t.string "company"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_managers_on_user_id"
+  end
 
   create_table "tasks", force: :cascade do |t|
     t.text "task"
@@ -29,4 +40,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_22_052944) do
     t.datetime "updated_at", null: false
     t.string "flag"
   end
+
+  add_foreign_key "managers", "users"
 end

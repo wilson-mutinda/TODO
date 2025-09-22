@@ -12,6 +12,13 @@ Rails.application.routes.draw do
       post 'user_login', to: 'users#user_login'
       post 'refresh_token', to: 'users#refresh_token'
 
+      # manager
+      post 'create_manager', to: 'managers#create_manager'
+      get 'single_manager/:id', to: 'managers#single_manager'
+      get 'all_managers', to: 'managers#all_managers'
+      patch 'update_manager/:id', to: 'managers#update_manager'
+      delete 'delete_manager/:id', to: 'managers#delete_manager'
+
       # task
       post 'create_task', to: 'tasks#create_task'
       

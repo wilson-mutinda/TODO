@@ -2,6 +2,8 @@ class User < ApplicationRecord
 
   has_secure_password
 
+  has_one :manager
+
   # validations
   validates :email, presence: true, uniqueness: true, if: -> { new_record? || email.present? }
   validates :phone, presence: true, uniqueness: true, if: -> { new_record? || phone.present? }
