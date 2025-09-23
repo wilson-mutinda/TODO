@@ -12,6 +12,8 @@ Rails.application.routes.draw do
       post 'user_login', to: 'users#user_login'
       post 'refresh_token', to: 'users#refresh_token'
 
+      post 'google_login', to: 'users#google_login'
+
       # manager
       post 'create_manager', to: 'managers#create_manager'
       get 'single_manager/:id', to: 'managers#single_manager'

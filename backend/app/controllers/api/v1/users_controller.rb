@@ -275,6 +275,8 @@ class Api::V1::UsersController < ApplicationController
           flag = user.flag
           access_token = token.encode_token(user.id, user.flag, 30.minutes.from_now)
           refresh_token = token.encode_token(user.id, user.flag, 24.hours.from_now)
+
+          UserLogin.send_login_email(user)
           render json: { 
             message: "Login successful",
             access_token: access_token,
@@ -324,6 +326,51 @@ class Api::V1::UsersController < ApplicationController
           render json: { error: "Something went wrong!", message: e.message }, status: :internal_server_error
         end
         
+  end
+
+  # google_login
+  require 'httparty'
+
+  def google_login
+    begin
+      token = params[:token]
+
+      # Verify the token with Google
+      token_info = HTTParty.get("https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=#{token}")
+      
+      if token_info.code != 200
+        return render json: { error: "Invalid Google Token!" }, status: :unauthorized
+      end
+
+      # Verify the token is for your app
+      if token_info['aud'] != ENV['GOOGLE_CLIENT_ID']
+        return render json: { error: "Token audience mismatch!" }, status: :unauthorized
+      end
+
+      user_info = HTTParty.get("https://www.googleapis.com/oauth2/v3/userinfo",
+        headers: { "Authorization" => "Bearer #{token}" })
+
+      if user_info.code == 200
+        email = user_info['email']
+        name = user_info['name']
+
+        user = User.find_or_create_by(email: email) do |u|
+          u.name = name
+          u.password = SecureRandom.hex(10)
+        end
+
+        access_token = JsonWebToken.encode_token(user.id, user.flag, 30.minutes.from_now)
+        refresh_token = JsonWebToken.encode_token(user.id, user.flag, 24.hours.from_now)
+
+        render json: { message: "Google Login Successful!", access_token: access_token, refresh_token: refresh_token, user: user }, status: :ok
+      else
+        render json: { error: "Invalid Google Token!" }, status: :unauthorized
+      end
+    rescue => e
+      puts "Google login error: #{e.message}"
+      puts e.backtrace
+      render json: { error: "Something went wrong!", message: e.message }, status: :internal_server_error
+    end
   end
 
   # privately hold user_params
